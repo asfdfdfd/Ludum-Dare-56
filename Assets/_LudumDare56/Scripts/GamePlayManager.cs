@@ -101,8 +101,21 @@ public class GamePlayManager : MonoBehaviour
 
             if (distanceBetweenFootsNew <= maxDistanceBetweenFoots)
             {
-                // TODO: Vector3.MoveTowards?
-                activeFoot.transform.position = activeFootNewPosition;
+                if (activeFoot == leftFoot) 
+                {
+                    if (activeFootNewPosition.x < rightFoot.transform.position.x)
+                    {
+                        // TODO: Vector3.MoveTowards?
+                        activeFoot.transform.position = activeFootNewPosition;
+                    }
+                }
+                else if (activeFoot == rightFoot)
+                {
+                    if (activeFootNewPosition.x > leftFoot.transform.position.x)
+                    {
+                        activeFoot.transform.position = activeFootNewPosition;
+                    }
+                }
             }
         }
 
