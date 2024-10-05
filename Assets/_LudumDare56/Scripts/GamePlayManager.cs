@@ -151,6 +151,7 @@ public class GamePlayManager : MonoBehaviour
         }
 
         activeFoot.transform.position = new Vector3(activeFoot.transform.position.x, 0.0f, activeFoot.transform.position.z);
+
         activeFoot = null;
     }
 }
