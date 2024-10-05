@@ -16,75 +16,85 @@ public class GamePlayManager : MonoBehaviour
     private float mouseSensivity;
 
     [SerializeField]
+    private float footSpeed;
+
+    [SerializeField]
     private Camera mainCamera;
 
     private GameObject activeFoot;
 
-    private GameObject inactiveFoot;
+    private GameObject inactiveFoot
+    {
+        get
+        {
+            if (activeFoot == leftFoot)
+            {
+                return rightFoot;
+            }
+            else if (activeFoot == rightFoot)
+            {
+                return leftFoot;
+            }
+            else
+            {
+                return null;
+            }
+        }
+    }
 
     private InputAction pointAction;
     private InputAction lookAction;    
     private InputAction attackAction;
+    private InputAction moveAction;
+    private InputAction enableLeftFootAction;
+    private InputAction enableRightFootAction;
 
     private void Start()
     {
+        Cursor.visible = false;
+
         pointAction = InputSystem.actions.FindAction("Point");
         lookAction = InputSystem.actions.FindAction("Look");
-        // "Click" action triggered twice on "WasPerformedThisFrame".
-        attackAction = InputSystem.actions.FindAction("Attack");        
+        attackAction = InputSystem.actions.FindAction("Attack");
+        moveAction = InputSystem.actions.FindAction("Move");
+        enableLeftFootAction = InputSystem.actions.FindAction("Enable Left Foot");
+        enableRightFootAction = InputSystem.actions.FindAction("Enable Right Foot");
     }
 
     private void Update()
     {
-        var pointerPosition = pointAction.ReadValue<Vector2>();
-
-        var pointerRay = mainCamera.ScreenPointToRay(pointerPosition);
-
-        // Foot under mouse cursor.
-        GameObject mouseOverFoot = null;
-
-        if (Physics.Raycast(pointerRay, out RaycastHit hit))
+        if (enableLeftFootAction.WasPerformedThisFrame())
         {
-            mouseOverFoot = hit.collider.gameObject;
-        }
-
-        if (attackAction.WasPerformedThisFrame())
-        {
-            if (activeFoot != null)
+            if (activeFoot == leftFoot)
             {
-                Cursor.visible = true;
-                Cursor.lockState = CursorLockMode.None;
-
-                activeFoot.transform.position = new Vector3(activeFoot.transform.position.x, 0.0f, activeFoot.transform.position.z);
-
-                activeFoot = null;
+                DisableActiveFoot();
             }
-            else if (mouseOverFoot != null)
-            {            
-                // Cursor.visible = false;
-                Cursor.lockState = CursorLockMode.Locked;
-                activeFoot = mouseOverFoot;
-
-                activeFoot.transform.position = new Vector3(activeFoot.transform.position.x, 3.0f, activeFoot.transform.position.z);
-
-                if (activeFoot == leftFoot) 
-                {
-                    inactiveFoot = rightFoot;
-                }
-                else
-                {
-                    inactiveFoot = leftFoot;
-                }
+            else
+            {
+                EnableActiveFoot(leftFoot);
+            }
+        }
+        else if (enableRightFootAction.WasPerformedThisFrame())
+        {
+            if (activeFoot == rightFoot)
+            {
+                DisableActiveFoot();
+            }
+            else
+            {
+                EnableActiveFoot(rightFoot);
             }
         }
 
         // Move active foot with mouse pointer.
         if (activeFoot != null)
         {
+            var movementVector2 = moveAction.ReadValue<Vector2>();
+            var movementVector3 = new Vector3(movementVector2.x, 0, movementVector2.y);
+
             var activeFootOldPosition = activeFoot.transform.position;
-            var pointerDelta = lookAction.ReadValue<Vector2>() * mouseSensivity * Time.deltaTime; 
-            var movementDelta = new Vector3(pointerDelta.x, 0, pointerDelta.y);
-            var activeFootNewPosition = activeFootOldPosition + movementDelta;
+            var activeFootNewPosition = activeFootOldPosition + movementVector3 * Time.deltaTime * footSpeed;;
+
             var inactiveFootPosition = inactiveFoot.transform.position;
 
             var distanceBetweenFoots = Vector3.Distance(activeFootNewPosition, inactiveFootPosition);
@@ -95,5 +105,32 @@ public class GamePlayManager : MonoBehaviour
                 activeFoot.transform.position = activeFootNewPosition;
             }
         }
+    }
+
+    private void EnableActiveFoot(GameObject foot)
+    {
+        if (foot == null)
+        {
+            return;
+        }
+
+        if (activeFoot != null)
+        {
+            DisableActiveFoot();
+        }
+
+        activeFoot = foot;
+        activeFoot.transform.position = new Vector3(activeFoot.transform.position.x, 3.0f, activeFoot.transform.position.z);
+    }
+
+    private void DisableActiveFoot()
+    {
+        if (activeFoot == null)
+        {
+            return;
+        }
+
+        activeFoot.transform.position = new Vector3(activeFoot.transform.position.x, 0.0f, activeFoot.transform.position.z);
+        activeFoot = null;
     }
 }
