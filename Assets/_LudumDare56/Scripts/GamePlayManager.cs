@@ -10,10 +10,10 @@ public class GamePlayManager : MonoBehaviour
     private GameObject rightFoot;
 
     [SerializeField]
-    private float maxDistanceBetweenFoots;
+    private GameObject virtualBody;
 
     [SerializeField]
-    private float mouseSensivity;
+    private float maxDistanceBetweenFoots;
 
     [SerializeField]
     private float footSpeed;
@@ -97,14 +97,21 @@ public class GamePlayManager : MonoBehaviour
 
             var inactiveFootPosition = inactiveFoot.transform.position;
 
-            var distanceBetweenFoots = Vector3.Distance(activeFootNewPosition, inactiveFootPosition);
+            var distanceBetweenFootsNew = Vector3.Distance(activeFootNewPosition, inactiveFootPosition);
 
-            if (distanceBetweenFoots <= maxDistanceBetweenFoots)
+            if (distanceBetweenFootsNew <= maxDistanceBetweenFoots)
             {
                 // TODO: Vector3.MoveTowards?
                 activeFoot.transform.position = activeFootNewPosition;
             }
         }
+
+        var virtualBodyPointLeft = new Vector3(leftFoot.transform.position.x, 0, leftFoot.transform.position.z);
+        var virtualBodyPointRight = new Vector3(rightFoot.transform.position.x, 0, rightFoot.transform.position.z);
+        var distanceBetweenFoots = Vector3.Distance(virtualBodyPointLeft,virtualBodyPointRight);
+        var distanceBetweenFootsHalf = distanceBetweenFoots / 2.0f;
+        var directionFromLeftToRight = (virtualBodyPointLeft - virtualBodyPointRight).normalized;
+        virtualBody.transform.position = virtualBodyPointLeft - directionFromLeftToRight * distanceBetweenFootsHalf;
     }
 
     private void EnableActiveFoot(GameObject foot)
