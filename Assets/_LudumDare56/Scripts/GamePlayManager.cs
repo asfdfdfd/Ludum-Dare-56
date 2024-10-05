@@ -1,8 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
-using UnityEditor.Experimental.GraphView;
-using UnityEditor.PackageManager;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -60,14 +55,17 @@ public class GamePlayManager : MonoBehaviour
                 Cursor.visible = true;
                 Cursor.lockState = CursorLockMode.None;
 
+                activeFoot.transform.position = new Vector3(activeFoot.transform.position.x, 0.0f, activeFoot.transform.position.z);
+
                 activeFoot = null;
             }
             else if (mouseOverFoot != null)
-            {
-                Cursor.visible = false;
+            {            
+                // Cursor.visible = false;
                 Cursor.lockState = CursorLockMode.Locked;
-
                 activeFoot = mouseOverFoot;
+
+                activeFoot.transform.position = new Vector3(activeFoot.transform.position.x, 3.0f, activeFoot.transform.position.z);
 
                 if (activeFoot == leftFoot) 
                 {
@@ -84,7 +82,7 @@ public class GamePlayManager : MonoBehaviour
         if (activeFoot != null)
         {
             var activeFootOldPosition = activeFoot.transform.position;
-            var pointerDelta = lookAction.ReadValue<Vector2>() * mouseSensivity;
+            var pointerDelta = lookAction.ReadValue<Vector2>() * mouseSensivity * Time.deltaTime; 
             var movementDelta = new Vector3(pointerDelta.x, 0, pointerDelta.y);
             var activeFootNewPosition = activeFootOldPosition + movementDelta;
             var inactiveFootPosition = inactiveFoot.transform.position;
@@ -93,11 +91,8 @@ public class GamePlayManager : MonoBehaviour
 
             if (distanceBetweenFoots <= maxDistanceBetweenFoots)
             {
+                // TODO: Vector3.MoveTowards?
                 activeFoot.transform.position = activeFootNewPosition;
-            }
-            else
-            {
-                activeFoot.transform.position -= movementDelta.normalized * 0.001f;
             }
         }
     }
