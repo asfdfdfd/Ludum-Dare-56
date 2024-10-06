@@ -6,8 +6,12 @@ public class GamePlayManager : MonoBehaviour
     [SerializeField]
     private GameObject leftFoot;
 
+    private Rigidbody leftFootRigidbody;
+
     [SerializeField]
     private GameObject rightFoot;
+
+    private Rigidbody rightFootRigidbody;
 
     [SerializeField]
     private GameObject virtualBody;
@@ -59,6 +63,9 @@ public class GamePlayManager : MonoBehaviour
         moveAction = InputSystem.actions.FindAction("Move");
         enableLeftFootAction = InputSystem.actions.FindAction("Enable Left Foot");
         enableRightFootAction = InputSystem.actions.FindAction("Enable Right Foot");
+
+        leftFootRigidbody = leftFoot.GetComponent<Rigidbody>();
+        rightFootRigidbody = rightFoot.GetComponent<Rigidbody>();
     }
 
     private void Update()
@@ -86,6 +93,16 @@ public class GamePlayManager : MonoBehaviour
             }
         }
 
+        var virtualBodyPointLeft = new Vector3(leftFoot.transform.position.x, 0, leftFoot.transform.position.z);
+        var virtualBodyPointRight = new Vector3(rightFoot.transform.position.x, 0, rightFoot.transform.position.z);
+        var distanceBetweenFoots = Vector3.Distance(virtualBodyPointLeft,virtualBodyPointRight);
+        var distanceBetweenFootsHalf = distanceBetweenFoots / 2.0f;
+        var directionFromLeftToRight = (virtualBodyPointLeft - virtualBodyPointRight).normalized;
+        virtualBody.transform.position = virtualBodyPointLeft - directionFromLeftToRight * distanceBetweenFootsHalf;
+    }
+
+    private void FixedUpdate()
+    {
         // Move active foot with mouse pointer.
         if (activeFoot != null)
         {
@@ -105,26 +122,18 @@ public class GamePlayManager : MonoBehaviour
                 {
                     if (activeFootNewPosition.x < rightFoot.transform.position.x)
                     {
-                        // TODO: Vector3.MoveTowards?
-                        activeFoot.transform.position = activeFootNewPosition;
+                        leftFootRigidbody.MovePosition(activeFootNewPosition);
                     }
                 }
                 else if (activeFoot == rightFoot)
                 {
                     if (activeFootNewPosition.x > leftFoot.transform.position.x)
                     {
-                        activeFoot.transform.position = activeFootNewPosition;
+                        rightFootRigidbody.MovePosition(activeFootNewPosition);
                     }
                 }
             }
-        }
-
-        var virtualBodyPointLeft = new Vector3(leftFoot.transform.position.x, 0, leftFoot.transform.position.z);
-        var virtualBodyPointRight = new Vector3(rightFoot.transform.position.x, 0, rightFoot.transform.position.z);
-        var distanceBetweenFoots = Vector3.Distance(virtualBodyPointLeft,virtualBodyPointRight);
-        var distanceBetweenFootsHalf = distanceBetweenFoots / 2.0f;
-        var directionFromLeftToRight = (virtualBodyPointLeft - virtualBodyPointRight).normalized;
-        virtualBody.transform.position = virtualBodyPointLeft - directionFromLeftToRight * distanceBetweenFootsHalf;
+        }        
     }
 
     private void EnableActiveFoot(GameObject foot)
