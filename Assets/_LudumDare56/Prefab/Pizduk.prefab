@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 5949534330712167411}
   - component: {fileID: 989287727294274644}
   - component: {fileID: 8267696300435714558}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Pizduk
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -151,6 +151,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: man
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 860663c3f48007541883c02e88923d5c,
+        type: 3}
+      propertyPath: m_Layer
+      value: 7
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
