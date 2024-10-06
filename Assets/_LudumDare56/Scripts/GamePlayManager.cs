@@ -1,3 +1,4 @@
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -9,9 +10,15 @@ public class GamePlayManager : MonoBehaviour
     private Rigidbody leftFootRigidbody;
 
     [SerializeField]
+    private GameObject leftFootFollower;
+
+    [SerializeField]
     private GameObject rightFoot;
 
     private Rigidbody rightFootRigidbody;
+
+    [SerializeField]
+    private GameObject rightFootFollower;
 
     [SerializeField]
     private GameObject virtualBody;
@@ -66,6 +73,9 @@ public class GamePlayManager : MonoBehaviour
 
         leftFootRigidbody = leftFoot.GetComponent<Rigidbody>();
         rightFootRigidbody = rightFoot.GetComponent<Rigidbody>();
+
+        leftFootFollower.GetComponentInChildren<SpriteRenderer>().DOFade(0.0f, 0.0f).From(0.0f);
+        rightFootFollower.GetComponentInChildren<SpriteRenderer>().DOFade(0.0f, 0.0f).From(0.0f);
     }
 
     private void Update()
@@ -146,6 +156,17 @@ public class GamePlayManager : MonoBehaviour
                     }
                 }
             }
+
+            var followerPosition = new Vector3(activeFootNewPositionOnGround.x, 0, activeFootNewPositionOnGround.z + 1.7f);
+
+            if (activeFoot == leftFoot)
+            {
+                leftFootFollower.transform.position = followerPosition;
+            }
+            else
+            {
+                rightFootFollower.transform.position = followerPosition;
+            }             
         }
     }
 
@@ -162,7 +183,19 @@ public class GamePlayManager : MonoBehaviour
         }
 
         activeFoot = foot;
-        activeFoot.transform.position = new Vector3(activeFoot.transform.position.x, 3.0f, activeFoot.transform.position.z);
+
+        var position = new Vector3(activeFoot.transform.position.x, 3.0f, activeFoot.transform.position.z);
+
+        activeFoot.transform.DOMove(position, 0.3f);
+
+        if (activeFoot == leftFoot)
+        {
+            leftFootFollower.GetComponentInChildren<SpriteRenderer>().DOFade(1.0f, 0.3f).From(0.0f);
+        }
+        else
+        {
+            rightFootFollower.GetComponentInChildren<SpriteRenderer>().DOFade(1.0f, 0.3f).From(0.0f);
+        }        
     }
 
     private void DisableActiveFoot()
@@ -172,7 +205,18 @@ public class GamePlayManager : MonoBehaviour
             return;
         }
 
-        activeFoot.transform.position = new Vector3(activeFoot.transform.position.x, 0.0f, activeFoot.transform.position.z);
+        var position = new Vector3(activeFoot.transform.position.x, 0.0f, activeFoot.transform.position.z);
+
+        activeFoot.transform.DOMove(position, 0.3f);
+
+        if (activeFoot == leftFoot)
+        {
+            leftFootFollower.GetComponentInChildren<SpriteRenderer>().DOFade(0.0f, 0.3f).From(1.0f);
+        }
+        else
+        {
+            rightFootFollower.GetComponentInChildren<SpriteRenderer>().DOFade(0.0f, 0.3f).From(1.0f);
+        }
 
         activeFoot = null;
     }
