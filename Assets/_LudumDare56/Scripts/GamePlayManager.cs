@@ -110,10 +110,17 @@ public class GamePlayManager : MonoBehaviour
             var movementVector3 = new Vector3(movementVector2.x, 0, movementVector2.y);
 
             var activeFootOldPosition = activeFoot.transform.position;
-            var activeFootNewPosition = activeFootOldPosition + movementVector3 * Time.deltaTime * footSpeed;;
+            var activeFootNewPosition = activeFootOldPosition + movementVector3 * Time.deltaTime * footSpeed;
+
+            var movementDistance = Vector3.Distance(activeFootOldPosition, activeFootNewPosition);
+            var movementDirection = (activeFootNewPosition - activeFootOldPosition).normalized;
 
             var inactiveFootPosition = inactiveFoot.transform.position;
 
+            var activeFootOldPositionOnGround = new Vector3(activeFootOldPosition.x, 0, activeFootOldPosition.z);
+            var activeFootNewPositionOnGround = new Vector3(activeFootNewPosition.x, 0, activeFootNewPosition.z);
+
+            var distanceBetweenFoots = Vector3.Distance(activeFootOldPosition, inactiveFootPosition);
             var distanceBetweenFootsNew = Vector3.Distance(activeFootNewPosition, inactiveFootPosition);
 
             if (distanceBetweenFootsNew <= maxDistanceBetweenFoots)
@@ -121,15 +128,21 @@ public class GamePlayManager : MonoBehaviour
                 if (activeFoot == leftFoot) 
                 {
                     if (activeFootNewPosition.x < rightFoot.transform.position.x)
-                    {
-                        leftFootRigidbody.MovePosition(activeFootNewPosition);
+                    {                                              
+                        if (!leftFootRigidbody.SweepTest(movementDirection, out RaycastHit hit, movementDistance))
+                        {                            
+                            leftFootRigidbody.MovePosition(activeFootNewPosition);
+                        }
                     }
                 }
                 else if (activeFoot == rightFoot)
                 {
                     if (activeFootNewPosition.x > leftFoot.transform.position.x)
-                    {
-                        rightFootRigidbody.MovePosition(activeFootNewPosition);
+                    {                                              
+                        if (!rightFootRigidbody.SweepTest(movementDirection, out RaycastHit hit, movementDistance))
+                        {                            
+                            rightFootRigidbody.MovePosition(activeFootNewPosition);
+                        }
                     }
                 }
             }
