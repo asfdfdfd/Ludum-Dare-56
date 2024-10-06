@@ -146,7 +146,7 @@ public class GamePlayManager : MonoBehaviour
                     }
                 }
             }
-        }        
+        }
     }
 
     private void EnableActiveFoot(GameObject foot)
