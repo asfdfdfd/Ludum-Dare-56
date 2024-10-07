@@ -1329,6 +1329,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eed21d99ded854c5f903bac7f98e18e8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  gameObjectTitleImage: {fileID: 1536964449}
+  gameObjectGameOverImage: {fileID: 378313011}
   leftFoot: {fileID: 299054082}
   leftFootFollower: {fileID: 592720981}
   rightFoot: {fileID: 1775124321}

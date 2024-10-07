@@ -5,6 +5,6 @@ public class PizdukManager : MonoBehaviour
 {
     void OnCollisionEnter(Collision collision)
     {
-        
+        GamePlayManager.Instance.GameOver();
     }
 }

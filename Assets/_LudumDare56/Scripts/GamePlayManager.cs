@@ -1,9 +1,23 @@
+using System.Linq;
+using Cinemachine;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Controls;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class GamePlayManager : MonoBehaviour
 {
+    [SerializeField]
+    private float footUpSpeed = 0.3f;
+
+    [SerializeField]
+    private GameObject gameObjectTitleImage;
+
+    [SerializeField]
+    private GameObject gameObjectGameOverImage;
+
     [SerializeField]
     private GameObject leftFoot;
 
@@ -32,6 +46,12 @@ public class GamePlayManager : MonoBehaviour
     [SerializeField]
     private Camera mainCamera;
 
+    [SerializeField]
+    private AudioSource backgroundMusic;
+
+    [SerializeField]
+    private AudioSource gameOverAudioSource;
+
     private GameObject activeFoot;
 
     private GameObject inactiveFoot
@@ -53,12 +73,23 @@ public class GamePlayManager : MonoBehaviour
         }
     }
 
+    public static GamePlayManager Instance;
+
     private InputAction pointAction;
     private InputAction lookAction;    
     private InputAction attackAction;
     private InputAction moveAction;
     private InputAction enableLeftFootAction;
     private InputAction enableRightFootAction;
+
+    private bool isTitleImageOnScreen = true;
+
+    private bool isGameOver = false;
+
+    private void Awake()
+    {
+        Instance = this;
+    }
 
     private void Start()
     {
@@ -76,10 +107,32 @@ public class GamePlayManager : MonoBehaviour
 
         leftFootFollower.GetComponentInChildren<SpriteRenderer>().DOFade(0.0f, 0.0f).From(0.0f);
         rightFootFollower.GetComponentInChildren<SpriteRenderer>().DOFade(0.0f, 0.0f).From(0.0f);
+
+        gameObjectGameOverImage.GetComponentInChildren<Image>().DOFade(0.0f, 0.0f).From(0.0f);
+    }
+
+    private void RemoveGameOverScreen()
+    {
+        isGameOver = false;
+
+        // gameObjectGameOverImage.GetComponentInChildren<Image>().DOFade(0.0f, footUpSpeed).SetEase(Ease.InOutSine);
+
+        SceneManager.UnloadSceneAsync("GameplayScene");
+        SceneManager.LoadScene("GameplayScene");
     }
 
     private void Update()
     {
+        if (isGameOver)
+        {                
+            if (Keyboard.current.anyKey.wasPressedThisFrame || enableLeftFootAction.WasPressedThisFrame() || enableRightFootAction.WasPressedThisFrame())
+            {
+                RemoveGameOverScreen();
+            }
+
+            return;
+        }
+
         if (enableLeftFootAction.WasPerformedThisFrame())
         {
             if (activeFoot == leftFoot)
@@ -90,6 +143,8 @@ public class GamePlayManager : MonoBehaviour
             {
                 EnableActiveFoot(leftFoot);
             }
+
+            RemoveTitleImage();
         }
         else if (enableRightFootAction.WasPerformedThisFrame())
         {
@@ -101,6 +156,8 @@ public class GamePlayManager : MonoBehaviour
             {
                 EnableActiveFoot(rightFoot);
             }
+
+            RemoveTitleImage();
         }
 
         var virtualBodyPointLeft = new Vector3(leftFoot.transform.position.x, 0, leftFoot.transform.position.z);
@@ -111,8 +168,25 @@ public class GamePlayManager : MonoBehaviour
         virtualBody.transform.position = virtualBodyPointLeft - directionFromLeftToRight * distanceBetweenFootsHalf;
     }
 
+    private void RemoveTitleImage()
+    {
+        if (!isTitleImageOnScreen) 
+        {
+            return;
+        }
+
+        isTitleImageOnScreen = false;
+
+        gameObjectTitleImage.transform.DOMoveY(200, footUpSpeed).SetRelative(true).SetEase(Ease.InOutQuad);
+    }
+
     private void FixedUpdate()
     {
+        if (isGameOver) 
+        {
+            return;
+        }
+
         // Move active foot with mouse pointer.
         if (activeFoot != null)
         {
@@ -186,15 +260,17 @@ public class GamePlayManager : MonoBehaviour
 
         var position = new Vector3(activeFoot.transform.position.x, 3.0f, activeFoot.transform.position.z);
 
-        activeFoot.transform.DOMove(position, 0.3f);
+        activeFoot.transform.DOMove(position, footUpSpeed);
+
+        mainCamera.DOShakePosition(1.0f);
 
         if (activeFoot == leftFoot)
         {
-            leftFootFollower.GetComponentInChildren<SpriteRenderer>().DOFade(1.0f, 0.3f).From(0.0f);
+            leftFootFollower.GetComponentInChildren<SpriteRenderer>().DOFade(1.0f, footUpSpeed).From(0.0f);
         }
         else
         {
-            rightFootFollower.GetComponentInChildren<SpriteRenderer>().DOFade(1.0f, 0.3f).From(0.0f);
+            rightFootFollower.GetComponentInChildren<SpriteRenderer>().DOFade(1.0f, footUpSpeed).From(0.0f);
         }        
     }
 
@@ -207,17 +283,28 @@ public class GamePlayManager : MonoBehaviour
 
         var position = new Vector3(activeFoot.transform.position.x, 0.0f, activeFoot.transform.position.z);
 
-        activeFoot.transform.DOMove(position, 0.3f);
+        activeFoot.transform.DOMove(position, footUpSpeed);
 
         if (activeFoot == leftFoot)
         {
-            leftFootFollower.GetComponentInChildren<SpriteRenderer>().DOFade(0.0f, 0.3f).From(1.0f);
+            leftFootFollower.GetComponentInChildren<SpriteRenderer>().DOFade(0.0f, footUpSpeed).From(1.0f);
         }
         else
         {
-            rightFootFollower.GetComponentInChildren<SpriteRenderer>().DOFade(0.0f, 0.3f).From(1.0f);
+            rightFootFollower.GetComponentInChildren<SpriteRenderer>().DOFade(0.0f, footUpSpeed).From(1.0f);
         }
 
         activeFoot = null;
+    }
+
+    public void GameOver()
+    {
+        isGameOver = true;
+
+        gameObjectGameOverImage.GetComponentInChildren<Image>().DOFade(1.0f, footUpSpeed).SetEase(Ease.InOutSine);
+
+        backgroundMusic.DOFade(0.0f, 0.1f);
+
+        gameOverAudioSource.Play();
     }
 }
