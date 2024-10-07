@@ -8,9 +8,6 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/_LudumDare56/Scenes/GameplayScene.unity
     guid: 9146d78de5bb646af9435ae79b2b1606
-  - enabled: 1
-    path: Assets/_LudumDare56/Scenes/SampleScene.unity
-    guid: 99c9720ab356a0642a771bea13969a05
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 8f035254a697e4fdab0511f76bab84a6,
       type: 3}

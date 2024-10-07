@@ -16,6 +16,9 @@ public class GamePlayManager : MonoBehaviour
     private GameObject gameObjectTitleImage;
 
     [SerializeField]
+    private GameObject gameObjectTitleImageRemoveTo;    
+
+    [SerializeField]
     private GameObject gameObjectGameOverImage;
 
     [SerializeField]
@@ -187,7 +190,11 @@ public class GamePlayManager : MonoBehaviour
 
         isTitleImageOnScreen = false;
 
-        gameObjectTitleImage.transform.DOMoveY(200, footUpSpeed).SetRelative(true).SetEase(Ease.InOutQuad);
+        gameObjectTitleImage.transform
+            .DOMoveY(gameObjectTitleImageRemoveTo.transform.position.y, footUpSpeed)
+            .SetEase(Ease.InOutQuad)
+            .OnComplete(() => Destroy(gameObjectTitleImage));
+
     }
 
     private void FixedUpdate()
