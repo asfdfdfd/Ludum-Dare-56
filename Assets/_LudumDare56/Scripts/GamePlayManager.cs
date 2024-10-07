@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using Cinemachine;
 using DG.Tweening;
@@ -61,6 +62,27 @@ public class GamePlayManager : MonoBehaviour
     [SerializeField]
     private Material congratulationsGameObjectMaterial;
 
+    [SerializeField]
+    private AudioSource legUpAudioSource;
+
+    [SerializeField]
+    private List<AudioClip> legUpAudioClips;
+
+    [SerializeField]
+    private AudioSource legDownAudioSource;
+
+    [SerializeField]
+    private List<AudioClip> legDownAudioClips;
+
+    [SerializeField]
+    private AudioSource legDownCarpetAudioSource;
+
+    [SerializeField]
+    private List<AudioClip> legDownCarpetAudioClips;    
+
+    [SerializeField]
+    private AudioSource pupupuAudioSource;
+
     private GameObject activeFoot;
 
     private GameObject inactiveFoot
@@ -97,6 +119,8 @@ public class GamePlayManager : MonoBehaviour
 
     private bool isGameFinished = false;
 
+    private HashSet<Collider> collidersOnCovrik = new HashSet<Collider>();
+
     private void Awake()
     {
         Instance = this;
@@ -130,7 +154,6 @@ public class GamePlayManager : MonoBehaviour
 
         // gameObjectGameOverImage.GetComponentInChildren<Image>().DOFade(0.0f, footUpSpeed).SetEase(Ease.InOutSine);
 
-        SceneManager.UnloadSceneAsync("GameplayScene");
         SceneManager.LoadScene("GameplayScene");
     }
 
@@ -273,6 +296,8 @@ public class GamePlayManager : MonoBehaviour
             DisableActiveFoot();
         }
 
+        legUpAudioSource.PlayOneShot(legUpAudioClips[Random.Range(0, legUpAudioClips.Count)]);
+
         activeFoot = foot;
 
         var position = new Vector3(activeFoot.transform.position.x, 3.0f, activeFoot.transform.position.z);
@@ -298,6 +323,22 @@ public class GamePlayManager : MonoBehaviour
             return;
         }
 
+        if (collidersOnCovrik.Count > 0)
+        {
+            if (collidersOnCovrik.Intersect(activeFoot.GetComponentsInChildren<Collider>()).Count() > 0) 
+            {
+                legDownCarpetAudioSource.PlayOneShot(legDownCarpetAudioClips[Random.Range(0, legDownCarpetAudioClips.Count)]);
+            }
+            else
+            {
+                legDownAudioSource.PlayOneShot(legDownAudioClips[Random.Range(0, legDownAudioClips.Count)]);
+            }
+        }
+        else
+        {
+            legDownAudioSource.PlayOneShot(legDownAudioClips[Random.Range(0, legDownAudioClips.Count)]);
+        }
+
         var position = new Vector3(activeFoot.transform.position.x, 0.0f, activeFoot.transform.position.z);
 
         activeFoot.transform.DOMove(position, footUpSpeed);
@@ -318,6 +359,8 @@ public class GamePlayManager : MonoBehaviour
     {
         isGameOver = true;
 
+        pupupuAudioSource.Play();
+
         gameObjectGameOverImage.GetComponentInChildren<Image>().DOFade(1.0f, footUpSpeed).SetEase(Ease.InOutSine);
 
         backgroundMusic.DOFade(0.0f, 0.1f);
@@ -335,5 +378,10 @@ public class GamePlayManager : MonoBehaviour
         isGameFinished = true;
 
         congratulationsGameObject.GetComponent<MeshRenderer>().material = congratulationsGameObjectMaterial;
+    }
+
+    public void SetCovrikColliderSet(HashSet<Collider> colliders)
+    {
+        this.collidersOnCovrik = colliders;
     }
 }

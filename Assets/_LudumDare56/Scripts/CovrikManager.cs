@@ -6,10 +6,15 @@ public class CovrikManager : MonoBehaviour
 {
     private HashSet<Collider> colliders = new HashSet<Collider>();
 
-    private void OnTriggerStay(Collider collider)
+    private void OnTriggerEnter(Collider collider)
     {
         colliders.Add(collider);
     }
+
+    private void OnTriggerExit(Collider collider)
+    {
+        colliders.Remove(collider);
+    }    
 
     private void Update()
     {
@@ -17,5 +22,7 @@ public class CovrikManager : MonoBehaviour
         {
             GamePlayManager.Instance.GameFinihsed();
         }
+
+        GamePlayManager.Instance.SetCovrikColliderSet(colliders);
     }
 }
