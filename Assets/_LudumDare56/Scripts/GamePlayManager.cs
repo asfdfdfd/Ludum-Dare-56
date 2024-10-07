@@ -52,6 +52,12 @@ public class GamePlayManager : MonoBehaviour
     [SerializeField]
     private AudioSource gameOverAudioSource;
 
+    [SerializeField]
+    private GameObject congratulationsGameObject;
+
+    [SerializeField]
+    private Material congratulationsGameObjectMaterial;
+
     private GameObject activeFoot;
 
     private GameObject inactiveFoot
@@ -86,6 +92,8 @@ public class GamePlayManager : MonoBehaviour
 
     private bool isGameOver = false;
 
+    private bool isGameFinished = false;
+
     private void Awake()
     {
         Instance = this;
@@ -109,6 +117,8 @@ public class GamePlayManager : MonoBehaviour
         rightFootFollower.GetComponentInChildren<SpriteRenderer>().DOFade(0.0f, 0.0f).From(0.0f);
 
         gameObjectGameOverImage.GetComponentInChildren<Image>().DOFade(0.0f, 0.0f).From(0.0f);
+
+        congratulationsGameObject.GetComponent<MeshRenderer>().SetMaterials(new System.Collections.Generic.List<Material>());
     }
 
     private void RemoveGameOverScreen()
@@ -306,5 +316,17 @@ public class GamePlayManager : MonoBehaviour
         backgroundMusic.DOFade(0.0f, 0.1f);
 
         gameOverAudioSource.Play();
+    }
+
+    public void GameFinihsed()
+    {
+        if (isGameFinished)
+        {
+            return;
+        }
+
+        isGameFinished = true;
+
+        congratulationsGameObject.GetComponent<MeshRenderer>().material = congratulationsGameObjectMaterial;
     }
 }
